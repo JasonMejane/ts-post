@@ -62,20 +62,20 @@ import { Message, Post, Subscription } from 'ts-post';
 ```typescript
 const post = Post.getInstance;
 
-// Create a new bus called busA, which will dispatch messages only to busA subcribers
-post.createBus('bus_A');
+// Create a new bus called foo, which will dispatch messages only to foo subcribers
+post.createBus('foo');
 
 // Subscribe to the bus
-const sub = post.subscribe('bus_A', {
+const sub = post.subscribe('foo', {
     callback: (message: Message) => {
-        console.log(`Message timestamp: ${message.getTimestamp()} - issuer: ${message.getTimestamp()}`);
+        console.log(`Message timestamp: ${message.getTimestamp()} - issuer: ${message.getIssuer()}`);
         doSomethingWithData(message.getData());
     },
     errorHandler: (error) => { console.error(error); }
 });
 
 // Publish a message into the bus
-post.publish('bus_A', new Message('some data', 'FooService'));
+post.publish('foo', new Message({ id: 'bar', description: 'some data', available: 104 }, 'FooService'));
 
 // Unsubscribe
 sub.unsubscribe();
