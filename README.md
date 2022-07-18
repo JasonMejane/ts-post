@@ -30,7 +30,7 @@
 	</a>&nbsp;
 	<br/>
 	<span>
-		<img src="https://github.com/JasonMejane/ts-post/actions/workflows/nodejs_ci_master.yml/badge.svg" alt="Node.js CI" />
+		<img src="https://github.com/JasonMejane/ts-post/actions/workflows/nodejs_ci_main.yml/badge.svg" alt="Node.js CI" />
 	</span>&nbsp;
 	<span>
 		<img src="https://img.shields.io/badge/coverage-100%25-success" alt="Coverage" />
