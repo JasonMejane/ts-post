@@ -1,6 +1,6 @@
 {
 	"name": "ts-post",
-	"version": "3.0.0",
+	"version": "2.0.0",
 	"description": "Flexible PubSub messaging bus system for node and browser applications",
 	"main": "index.js",
 	"types": "index.d.ts",
