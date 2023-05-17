@@ -5,21 +5,21 @@
  *
  * The messager issuer can also be set on creation: `new Message(data, issuer)`
  *
- * @param {any} data The data to send
+ * @param {T} data The data to send
  * @param {any} [issuer] (optional) The issuer of the message
  */
-export class Message {
-    private data: any;
+export class Message<T> {
+    private data: T;
     private issuer: any;
     private timestamp: number;
 
-    constructor(data: any, issuer?: any) {
+    constructor(data: T, issuer?: any) {
         this.timestamp = Date.now();
         this.data = data;
         this.issuer = issuer;
     }
 
-    public getData(): any {
+    public getData(): T {
         return this.data;
     }
 

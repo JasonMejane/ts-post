@@ -7,17 +7,17 @@ export class PostTest {
 	public subs: Subscriber[] = [];
 }
 
-describe('PostTest', () => {
+describe('PostTest', async () => {
 	let test: PostTest;
 
-	describe('PubSub', () => {
-		beforeEach(() => {
+	describe('PubSub', async () => {
+		beforeEach(async () => {
 			test = new PostTest();
 			test.post.reinitialize();
 			test.subs = [];
 		});
 
-		it('should publish and log a message', () => {
+		it('should publish and log a message', async () => {
 			const bus = 'default';
 			const msg = '123456';
 
@@ -25,17 +25,17 @@ describe('PostTest', () => {
 
 			test.subs.push(
 				test.post.subscribe(bus, {
-					callback: (message: Message) => {
+					callback: async (message: Message<any>) => {
 						console.log(message.getData());
 					},
 				})
 			);
-			test.post.publish(bus, new Message(msg));
+			await test.post.publish(bus, new Message(msg));
 
 			expect(console.log).toHaveBeenCalledWith(msg);
 		});
 
-		it('should publish and not log a message when unsubscribed', () => {
+		it('should publish and not log a message when unsubscribed', async () => {
 			const bus = 'default';
 			const msg = '123456';
 
@@ -43,13 +43,13 @@ describe('PostTest', () => {
 
 			test.subs.push(
 				test.post.subscribe(bus, {
-					callback: (message: Message) => {
+					callback: async (message: Message<any>) => {
 						console.log(message.getData());
 					},
 				})
 			);
 			test.subs[0].unsubscribe();
-			test.post.publish(bus, new Message(msg));
+			await test.post.publish(bus, new Message(msg));
 
 			expect(console.log).not.toHaveBeenCalledWith(msg);
 		});

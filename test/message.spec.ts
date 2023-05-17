@@ -1,9 +1,9 @@
 import { Message } from '../src/message';
 
-describe('PostTest', () => {
+describe('PostTest', async () => {
 
-	describe('Message', () => {
-		it('should properly set the timestamp', () => {
+	describe('Message', async () => {
+		it('should properly set the timestamp', async () => {
 			const bus = 'default';
 			const beforeTime = Date.now();
 			const msg = new Message('');
@@ -13,7 +13,7 @@ describe('PostTest', () => {
 			expect(msg.getTimestamp()).toBeLessThanOrEqual(afterTime);
 		});
 
-		it('should return the issuer when set', () => {
+		it('should return the issuer when set', async () => {
 			const issuer = 'Issuer';
 			const msg = new Message('', issuer);
 

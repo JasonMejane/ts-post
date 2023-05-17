@@ -4,7 +4,7 @@ import { Subscriber, Subscription } from "./subscription";
 
 export class Post {
     private static instance: Post;
-    private buses: Map<string, Bus> = new Map<string, Bus>();
+    private buses: Map<string, Bus<any>> = new Map<string, Bus<any>>();
 
     private constructor() {
         this.initialize();
@@ -25,9 +25,9 @@ export class Post {
      *
      * @param {string} busName The Bus name
      */
-    public createBus(busName: string): void {
+    public createBus<T>(busName: string): void {
         if (!this.buses.has(busName)) {
-            this.buses.set(busName, new Bus());
+            this.buses.set(busName, new Bus<T>());
         }
     }
 
@@ -56,7 +56,7 @@ export class Post {
      * @param {string} busName The Bus name
      */
     public resetBus(busName: string): void {
-        this.buses.get(busName)?.unsubscribeAll();
+        this.buses.get(busName)?.reset();
     }
 
     /**
@@ -65,8 +65,8 @@ export class Post {
      * @param {string} busName The Bus name
      * @param {Message} message The message to send into the Bus
      */
-    public publish(busName: string, message: Message): void {
-        this.buses.get(busName)?.publish(message);
+    public async publish<T>(busName: string, message: Message<T>): Promise<void> {
+        await this.buses.get(busName)?.publish(message);
     }
 
     /**
@@ -83,12 +83,12 @@ export class Post {
      * @param {Subscription} subscription The subscription to the Bus
      * @return {Subscriber} The subscriber
      */
-    public subscribe(busName: string, subscription: Subscription): Subscriber {
+    public subscribe<T>(busName: string, subscription: Subscription<T>): Subscriber {
         return this.buses.get(busName)?.subscribe(subscription) ?? { unsubscribe: () => undefined };
     }
 
 	private initialize(): void {
-		this.buses = new Map<string, Bus>();
+		this.buses = new Map<string, Bus<any>>();
         this.buses.set('default', new Bus());
 	}
 }

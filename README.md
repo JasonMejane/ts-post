@@ -67,15 +67,15 @@ post.createBus('foo');
 
 // Subscribe to the bus
 const sub = post.subscribe('foo', {
-    callback: (message: Message) => {
+    callback: async (message: Message) => {
         console.log(`Message timestamp: ${message.getTimestamp()} - issuer: ${message.getIssuer()}`);
-        doSomethingWithData(message.getData());
+        await doSomethingWithData(message.getData());
     },
     errorHandler: (error) => { console.error(error); }
 });
 
 // Publish a message into the bus
-post.publish('foo', new Message({ id: 'bar', description: 'some data', available: 104 }, 'FooService'));
+await post.publish('foo', new Message({ id: 'bar', description: 'some data', available: 104 }, 'FooService'));
 
 // Unsubscribe
 sub.unsubscribe();

@@ -1,29 +1,40 @@
 import { Message } from "./message";
-import { Callback, Subscriber, Subscription } from "./subscription";
+import { Callback, CallbackWithId, Subscriber, Subscription } from "./subscription";
 
-export class Bus {
-    private callbacks: Callback[] = [];
+export class Bus<T> {
+    private callbacks: (CallbackWithId<T> | null)[] = [];
     private subscriptionCount: number = 0;
+	private idSequence: number = 0;
 
     public getSubscriptionCount(): number {
         return this.subscriptionCount;
     }
 
-    public publish(message: Message): void {
+    public async publish(message: Message<T>): Promise<void> {
         for (let i = 0; i < this.callbacks.length; i++) {
-            this.callbacks[i](message);
+            await this.callbacks[i]?.callback(message);
         }
     }
 
-    public subscribe(subscription: Subscription): Subscriber {
+    public subscribe(subscription: Subscription<T>): Subscriber {
         const wrappedCallback = this.wrapCallback(subscription);
 
-        this.callbacks.push(wrappedCallback);
+		const id = this.idSequence;
+        this.callbacks.push({
+			id,
+			callback: wrappedCallback
+		});
+        this.idSequence++;
         this.subscriptionCount++;
 
         return {
-            unsubscribe: () => { this.unsubscribe(wrappedCallback); }
+            unsubscribe: () => { this.unsubscribe(id); }
         };
+    }
+
+    public reset(): void {
+        this.unsubscribeAll();
+        this.idSequence = 0;
     }
 
     public unsubscribeAll(): void {
@@ -31,19 +42,21 @@ export class Bus {
         this.subscriptionCount = 0;
     }
 
-    private unsubscribe(callback: Callback): void {
-        const callbacks = this.callbacks;
-        const index = callbacks.indexOf(callback);
-        if (index > -1) {
-            callbacks.splice(index, 1);
-            this.subscriptionCount--;
-        }
+    private unsubscribe(id: number): void {
+		for (let i = 0; i < this.callbacks.length; i++) {
+			if (this.callbacks[i]?.id === id) {
+				this.callbacks[i] = null;
+				this.callbacks.splice(i, 1);
+				this.subscriptionCount--;
+				break;
+			}
+		}
     }
 
-    private wrapCallback(subscription: Subscription): Callback {
-        const safeCallback = (message: Message) => {
+    private wrapCallback(subscription: Subscription<T>): Callback<T> {
+        const safeCallback = async (message: Message<T>) => {
             try {
-                subscription.callback(message);
+                await subscription.callback(message);
             } catch (callbackError) {
                 if (!subscription.errorHandler) {
                     return;
@@ -57,11 +70,11 @@ export class Bus {
             }
         };
 
-        return (message: Message) => {
+        return async (message: Message<T>) => {
             if (subscription.delay === undefined) {
-                safeCallback(message);
+                await safeCallback(message);
             } else {
-                setTimeout(() => { safeCallback(message); }, subscription.delay);
+                setTimeout(async () => { await safeCallback(message); }, subscription.delay);
             }
         }
     }
